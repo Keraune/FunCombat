@@ -41,7 +41,7 @@ public final class FunCombat extends JavaPlugin {
         reloadConfig();
     }
 
-    // === GETTERS NUEVOS ===
+    // === GETTERS ===
 
     public boolean cancelNormalKB() {
         return getConfig().getBoolean("normal-knockback.cancel", true);
