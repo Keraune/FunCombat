@@ -10,4 +10,4 @@ critical-knockback:
   cancel: true   # true = sin knockback, false = knockback normal
 
 # ¿Mostrar mensajes de debug?
-debug: true
+debug: false
