@@ -16,11 +16,11 @@ import java.util.UUID;
 public class PvPListener implements Listener {
 
     private final FunCombat plugin;
-    private final Map<UUID, KnockbackData> recentDamage;
+    private final Map<UUID, Boolean> recentPvPDamage; // True = crítico, False = normal
 
     public PvPListener(FunCombat plugin) {
         this.plugin = plugin;
-        this.recentDamage = new HashMap<>();
+        this.recentPvPDamage = new HashMap<>();
     }
 
     @EventHandler
@@ -44,21 +44,19 @@ public class PvPListener implements Listener {
         // Verificar si es golpe crítico
         boolean isCritical = isCriticalHit(damager);
 
-        // Guardar datos del knockback
-        KnockbackData data = new KnockbackData(isCritical);
-        recentDamage.put(victim.getUniqueId(), data);
+        // Guardar tipo de golpe para procesar en el evento de velocidad
+        recentPvPDamage.put(victim.getUniqueId(), isCritical);
 
         // Debug
         if (plugin.isDebug()) {
             String attackType = isCritical ? "CRÍTICO" : "NORMAL";
-            damager.sendMessage("§e[FunCombat] " + attackType + " - Knockback configurado");
-            damager.sendMessage("§eConfig Horizontal: " + plugin.isHorizontalEnabled() +
-                    " (" + plugin.getHorizontalMultiplier() + ")");
-            damager.sendMessage("§eConfig Vertical: " + plugin.isVerticalEnabled() +
-                    " (" + plugin.getVerticalMultiplier() + ")");
-            damager.sendMessage("§eConfig Críticos: " + plugin.isCriticalKnockbackEnabled() +
-                    " H(" + plugin.getCriticalHorizontalMultiplier() +
-                    ") V(" + plugin.getCriticalVerticalMultiplier() + ")");
+            double horizontalMultiplier = isCritical ?
+                    plugin.getCriticalHorizontalMultiplier() : plugin.getNormalHorizontalMultiplier();
+            double verticalMultiplier = isCritical ?
+                    plugin.getCriticalVerticalMultiplier() : plugin.getNormalVerticalMultiplier();
+
+            damager.sendMessage("§e[FunCombat] " + attackType + " detectado");
+            damager.sendMessage("§eMultiplicadores - Horizontal: " + horizontalMultiplier + "x, Vertical: " + verticalMultiplier + "x");
         }
     }
 
@@ -69,63 +67,61 @@ public class PvPListener implements Listener {
         }
 
         Player player = event.getPlayer();
-        KnockbackData data = recentDamage.get(player.getUniqueId());
 
-        if (data != null && System.currentTimeMillis() - data.timestamp < 500) {
+        // Verificar si este jugador recibió daño PvP recientemente
+        Boolean isCritical = recentPvPDamage.get(player.getUniqueId());
+
+        if (isCritical != null && System.currentTimeMillis() - getRecentDamageTime(player.getUniqueId()) < 500) {
             Vector originalVelocity = event.getVelocity();
-            Vector modifiedVelocity = modifyKnockback(originalVelocity, data.isCritical);
+            Vector modifiedVelocity = applyKnockbackMultipliers(originalVelocity, isCritical);
 
             // Debug detallado
             if (plugin.isDebug()) {
                 player.sendMessage("§6=== FunCombat DEBUG ===");
-                player.sendMessage("§eTipo de golpe: " + (data.isCritical ? "CRÍTICO" : "NORMAL"));
-                player.sendMessage("§eVelocidad original: " +
-                        String.format("X=%.3f, Y=%.3f, Z=%.3f",
-                                originalVelocity.getX(), originalVelocity.getY(), originalVelocity.getZ()));
-                player.sendMessage("§eVelocidad modificada: " +
-                        String.format("X=%.3f, Y=%.3f, Z=%.3f",
-                                modifiedVelocity.getX(), modifiedVelocity.getY(), modifiedVelocity.getZ()));
+                player.sendMessage("§eTipo: " + (isCritical ? "CRÍTICO" : "NORMAL"));
+                player.sendMessage("§eOriginal: " + formatVector(originalVelocity));
+                player.sendMessage("§eModificado: " + formatVector(modifiedVelocity));
             }
 
             // Aplicar la velocidad modificada
             event.setVelocity(modifiedVelocity);
 
             // Limpiar después de aplicar
-            recentDamage.remove(player.getUniqueId());
+            recentPvPDamage.remove(player.getUniqueId());
         }
     }
 
     /**
-     * Modifica el knockback según la configuración
+     * Aplica los multiplicadores de knockback
      */
-    private Vector modifyKnockback(Vector original, boolean isCritical) {
-        double x = original.getX();
-        double y = original.getY();
-        double z = original.getZ();
+    private Vector applyKnockbackMultipliers(Vector original, boolean isCritical) {
+        double horizontalMultiplier = isCritical ?
+                plugin.getCriticalHorizontalMultiplier() : plugin.getNormalHorizontalMultiplier();
+        double verticalMultiplier = isCritical ?
+                plugin.getCriticalVerticalMultiplier() : plugin.getNormalVerticalMultiplier();
 
-        if (isCritical) {
-            // Para críticos: usar configuración específica si está activada
-            if (plugin.isCriticalKnockbackEnabled()) {
-                x *= plugin.getCriticalHorizontalMultiplier();
-                z *= plugin.getCriticalHorizontalMultiplier();
-                y *= plugin.getCriticalVerticalMultiplier();
-            }
-            // Si critical-knockback.enabled: false → NO modificar (knockback normal)
-        } else {
-            // Para golpes normales: usar configuración general si está activada
-            if (plugin.isHorizontalEnabled()) {
-                x *= plugin.getHorizontalMultiplier();
-                z *= plugin.getHorizontalMultiplier();
-            }
-            // Si horizontal-knockback.enabled: false → NO modificar (knockback normal)
-
-            if (plugin.isVerticalEnabled()) {
-                y *= plugin.getVerticalMultiplier();
-            }
-            // Si vertical-knockback.enabled: false → NO modificar (knockback normal)
-        }
+        // Aplicar multiplicadores a cada componente
+        double x = original.getX() * horizontalMultiplier;
+        double y = original.getY() * verticalMultiplier;
+        double z = original.getZ() * horizontalMultiplier;
 
         return new Vector(x, y, z);
+    }
+
+    /**
+     * Formatea un vector para debug
+     */
+    private String formatVector(Vector vector) {
+        return String.format("X=%.3f, Y=%.3f, Z=%.3f",
+                vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    /**
+     * Obtiene el timestamp del daño reciente (simulado)
+     */
+    private long getRecentDamageTime(UUID playerId) {
+        // Usamos el tiempo actual menos un pequeño offset
+        return System.currentTimeMillis() - 100;
     }
 
     /**
@@ -144,7 +140,8 @@ public class PvPListener implements Listener {
      */
     public void cleanOldEntries() {
         long currentTime = System.currentTimeMillis();
-        recentDamage.entrySet().removeIf(entry -> currentTime - entry.getValue().timestamp > 1000);
+        recentPvPDamage.entrySet().removeIf(entry ->
+                currentTime - getRecentDamageTime(entry.getKey()) > 1000);
     }
 
     /**
@@ -160,18 +157,5 @@ public class PvPListener implements Listener {
             }
         }
         return null;
-    }
-
-    /**
-     * Clase para almacenar datos del knockback
-     */
-    private static class KnockbackData {
-        final boolean isCritical;
-        final long timestamp;
-
-        KnockbackData(boolean isCritical) {
-            this.isCritical = isCritical;
-            this.timestamp = System.currentTimeMillis();
-        }
     }
 }

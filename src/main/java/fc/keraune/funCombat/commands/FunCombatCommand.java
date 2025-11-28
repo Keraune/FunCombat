@@ -52,22 +52,16 @@ public class FunCombatCommand implements CommandExecutor {
     private void sendStatus(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "=== FunCombat Status ===");
         sender.sendMessage(ChatColor.GREEN + "Reducir knockback: " + plugin.isReduceKnockback());
-        sender.sendMessage(ChatColor.GREEN + "Knockback horizontal: " +
-                (plugin.isHorizontalEnabled() ?
-                        (plugin.getHorizontalMultiplier() * 100) + "%" :
-                        "DESACTIVADO (knockback normal)"));
-        sender.sendMessage(ChatColor.GREEN + "Knockback vertical: " +
-                (plugin.isVerticalEnabled() ?
-                        (plugin.getVerticalMultiplier() * 100) + "%" :
-                        "DESACTIVADO (knockback normal)"));
-        sender.sendMessage(ChatColor.GREEN + "Knockback en críticos: " +
-                (plugin.isCriticalKnockbackEnabled() ? "CONFIGURADO" : "DESACTIVADO (knockback normal)"));
-        if (plugin.isCriticalKnockbackEnabled()) {
-            sender.sendMessage(ChatColor.GREEN + "  • Multiplicador horizontal: " +
-                    (plugin.getCriticalHorizontalMultiplier() * 100) + "%");
-            sender.sendMessage(ChatColor.GREEN + "  • Multiplicador vertical: " +
-                    (plugin.getCriticalVerticalMultiplier() * 100) + "%");
-        }
+
+        sender.sendMessage(ChatColor.YELLOW + "Golpes NORMALES:");
+        sender.sendMessage(ChatColor.GREEN + "  • Horizontal: " + (plugin.getNormalHorizontalMultiplier() * 100) + "%");
+        sender.sendMessage(ChatColor.GREEN + "  • Vertical: " + (plugin.getNormalVerticalMultiplier() * 100) + "%");
+
+        sender.sendMessage(ChatColor.YELLOW + "Golpes CRÍTICOS:");
+        sender.sendMessage(ChatColor.GREEN + "  • Horizontal: " + (plugin.getCriticalHorizontalMultiplier() * 100) + "%");
+        sender.sendMessage(ChatColor.GREEN + "  • Vertical: " + (plugin.getCriticalVerticalMultiplier() * 100) + "%");
+
         sender.sendMessage(ChatColor.GREEN + "Modo debug: " + plugin.isDebug());
+        sender.sendMessage(ChatColor.GRAY + "Nota: 100% = knockback normal de Minecraft");
     }
 }

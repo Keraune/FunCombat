@@ -1,20 +1,17 @@
 # FunCombat Configuration
 reduce-knockback: true
 
-# Configuración de knockback horizontal (lados)
-horizontal-knockback:
-  enabled: true
-  multiplier: 0.2  # 20% del knockback normal
+# Configuración de knockback para golpes NORMALES
+# 1.0 = knockback normal de Minecraft | 0.0 = sin knockback
+normal-knockback:
+  horizontal-multiplier: 0.5
+  vertical-multiplier: 0.0
 
-# Configuración de knockback vertical (arriba/abajo)
-vertical-knockback:
-  enabled: false   # Desactivar empuje vertical
-  multiplier: 0.0  # Este valor no se usa cuando enabled: false
-
-# Configuración específica para golpes críticos
+# Configuración de knockback para golpes CRÍTICOS
+# 1.0 = knockback normal de Minecraft | 0.0 = sin knockback
 critical-knockback:
-  enabled: true   # Activar configuración específica para críticos
-  horizontal-multiplier: 0.1  # 10% del knockback normal
-  vertical-multiplier: 0.0    # 0% de empuje vertical
+  horizontal-multiplier: 0.5
+  vertical-multiplier: 0.0
 
+# ¿Mostrar mensajes de debug?
 debug: true

@@ -57,26 +57,16 @@ public final class FunCombat extends JavaPlugin {
         return getConfig().getBoolean("reduce-knockback", true);
     }
 
-    public double getHorizontalMultiplier() {
-        return getConfig().getDouble("horizontal-knockback.multiplier", 0.2);
+    // Getters para knockback NORMAL
+    public double getNormalHorizontalMultiplier() {
+        return getConfig().getDouble("normal-knockback.horizontal-multiplier", 0.2);
     }
 
-    public boolean isHorizontalEnabled() {
-        return getConfig().getBoolean("horizontal-knockback.enabled", true);
+    public double getNormalVerticalMultiplier() {
+        return getConfig().getDouble("normal-knockback.vertical-multiplier", 0.0);
     }
 
-    public double getVerticalMultiplier() {
-        return getConfig().getDouble("vertical-knockback.multiplier", 0.0);
-    }
-
-    public boolean isVerticalEnabled() {
-        return getConfig().getBoolean("vertical-knockback.enabled", false);
-    }
-
-    public boolean isCriticalKnockbackEnabled() {
-        return getConfig().getBoolean("critical-knockback.enabled", false);
-    }
-
+    // Getters para knockback CRÍTICO
     public double getCriticalHorizontalMultiplier() {
         return getConfig().getDouble("critical-knockback.horizontal-multiplier", 0.1);
     }
