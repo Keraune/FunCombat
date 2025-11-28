@@ -1,0 +1,4 @@
+name: FunCombat
+version: '1.0.0'
+main: fc.keraune.funCombat.FunCombat
+api-version: '1.21'
