@@ -5,12 +5,10 @@ import fc.keraune.funCombat.commands.FunCombatTabCompleter;
 import fc.keraune.funCombat.listeners.PvPListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public final class FunCombat extends JavaPlugin {
 
     private static FunCombat instance;
-    private PvPListener pvpListener;
 
     @Override
     public void onEnable() {
@@ -20,23 +18,14 @@ public final class FunCombat extends JavaPlugin {
         saveDefaultConfig();
 
         // Registrar eventos
-        this.pvpListener = new PvPListener(this);
-        Bukkit.getPluginManager().registerEvents(pvpListener, this);
+        Bukkit.getPluginManager().registerEvents(new PvPListener(this), this);
 
-        // Registrar comando y autocompletado
-        FunCombatCommand commandExecutor = new FunCombatCommand(this);
-        getCommand("funcombat").setExecutor(commandExecutor);
+        // Registrar comando
+        FunCombatCommand cmd = new FunCombatCommand(this);
+        getCommand("funcombat").setExecutor(cmd);
         getCommand("funcombat").setTabCompleter(new FunCombatTabCompleter());
 
-        // Tarea para limpiar entradas antiguas cada minuto
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                pvpListener.cleanOldEntries();
-            }
-        }.runTaskTimer(this, 1200L, 1200L);
-
-        getLogger().info("FunCombat activado! Sistema de PvP con knockback configurable.");
+        getLogger().info("FunCombat activado! Knockback configurable cargado.");
     }
 
     @Override
@@ -52,27 +41,18 @@ public final class FunCombat extends JavaPlugin {
         reloadConfig();
     }
 
-    // Getters para la configuración
+    // === GETTERS NUEVOS ===
+
+    public boolean cancelNormalKB() {
+        return getConfig().getBoolean("normal-knockback.cancel", true);
+    }
+
+    public boolean cancelCriticalKB() {
+        return getConfig().getBoolean("critical-knockback.cancel", true);
+    }
+
     public boolean isReduceKnockback() {
         return getConfig().getBoolean("reduce-knockback", true);
-    }
-
-    // Getters para knockback NORMAL
-    public double getNormalHorizontalMultiplier() {
-        return getConfig().getDouble("normal-knockback.horizontal-multiplier", 0.2);
-    }
-
-    public double getNormalVerticalMultiplier() {
-        return getConfig().getDouble("normal-knockback.vertical-multiplier", 0.0);
-    }
-
-    // Getters para knockback CRÍTICO
-    public double getCriticalHorizontalMultiplier() {
-        return getConfig().getDouble("critical-knockback.horizontal-multiplier", 0.1);
-    }
-
-    public double getCriticalVerticalMultiplier() {
-        return getConfig().getDouble("critical-knockback.vertical-multiplier", 0.0);
     }
 
     public boolean isDebug() {

@@ -2,16 +2,12 @@
 reduce-knockback: true
 
 # Configuración de knockback para golpes NORMALES
-# 1.0 = knockback normal de Minecraft | 0.0 = sin knockback
 normal-knockback:
-  horizontal-multiplier: 0.5
-  vertical-multiplier: 0.0
+  cancel: true   # true = sin knockback, false = knockback normal
 
 # Configuración de knockback para golpes CRÍTICOS
-# 1.0 = knockback normal de Minecraft | 0.0 = sin knockback
 critical-knockback:
-  horizontal-multiplier: 0.5
-  vertical-multiplier: 0.0
+  cancel: true   # true = sin knockback, false = knockback normal
 
 # ¿Mostrar mensajes de debug?
 debug: true

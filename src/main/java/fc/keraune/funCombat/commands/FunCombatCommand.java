@@ -15,7 +15,7 @@ public class FunCombatCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         if (args.length == 0) {
             sendHelp(sender);
@@ -23,13 +23,8 @@ public class FunCombatCommand implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("funcombat.admin")) {
-                sender.sendMessage(ChatColor.RED + "No tienes permiso para este comando.");
-                return true;
-            }
-
             plugin.reloadPluginConfig();
-            sender.sendMessage(ChatColor.GREEN + "FunCombat recargado! Configuración actualizada.");
+            sender.sendMessage(ChatColor.GREEN + "FunCombat recargado!");
             sendStatus(sender);
             return true;
         }
@@ -46,22 +41,15 @@ public class FunCombatCommand implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "=== FunCombat ===");
         sender.sendMessage(ChatColor.YELLOW + "/funcombat reload " + ChatColor.WHITE + "- Recargar configuración");
-        sender.sendMessage(ChatColor.YELLOW + "/funcombat status " + ChatColor.WHITE + "- Ver estado");
+        sender.sendMessage(ChatColor.YELLOW + "/funcombat status " + ChatColor.WHITE + "- Ver estado actual");
     }
 
     private void sendStatus(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "=== FunCombat Status ===");
-        sender.sendMessage(ChatColor.GREEN + "Reducir knockback: " + plugin.isReduceKnockback());
+        sender.sendMessage(ChatColor.GOLD + "=== Estado del Knockback ===");
 
-        sender.sendMessage(ChatColor.YELLOW + "Golpes NORMALES:");
-        sender.sendMessage(ChatColor.GREEN + "  • Horizontal: " + (plugin.getNormalHorizontalMultiplier() * 100) + "%");
-        sender.sendMessage(ChatColor.GREEN + "  • Vertical: " + (plugin.getNormalVerticalMultiplier() * 100) + "%");
-
-        sender.sendMessage(ChatColor.YELLOW + "Golpes CRÍTICOS:");
-        sender.sendMessage(ChatColor.GREEN + "  • Horizontal: " + (plugin.getCriticalHorizontalMultiplier() * 100) + "%");
-        sender.sendMessage(ChatColor.GREEN + "  • Vertical: " + (plugin.getCriticalVerticalMultiplier() * 100) + "%");
-
-        sender.sendMessage(ChatColor.GREEN + "Modo debug: " + plugin.isDebug());
-        sender.sendMessage(ChatColor.GRAY + "Nota: 100% = knockback normal de Minecraft");
+        sender.sendMessage(ChatColor.YELLOW + "Reducir KB: " + ChatColor.WHITE + plugin.isReduceKnockback());
+        sender.sendMessage(ChatColor.YELLOW + "Normal cancelado: " + ChatColor.WHITE + plugin.cancelNormalKB());
+        sender.sendMessage(ChatColor.YELLOW + "Crítico cancelado: " + ChatColor.WHITE + plugin.cancelCriticalKB());
+        sender.sendMessage(ChatColor.YELLOW + "Debug: " + ChatColor.WHITE + plugin.isDebug());
     }
 }
