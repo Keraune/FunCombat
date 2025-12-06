@@ -1,3 +1,4 @@
+```
 # FunCombat Configuration
 reduce-knockback: true
 
@@ -11,3 +12,4 @@ critical-knockback:
 
 # ¿Mostrar mensajes de debug?
 debug: false
+```
