@@ -1,4 +1,4 @@
-```
+```yaml
 # FunCombat Configuration
 reduce-knockback: true
 
